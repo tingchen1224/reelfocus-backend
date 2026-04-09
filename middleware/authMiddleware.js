@@ -1,20 +1,20 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-  // 從 Header 取出 Token： 預期格式為 "Bearer <token>"
+  // Retrieve Token from Header: Expected format is "Bearer <token>"
   const authHeader = req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: '未授權：無效或缺失的 Token' });
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing token' });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    // 驗證 JWT，若過期或篡改會直接拋出 Error
+    // Verify JWT; if expired or tampered with, an Error will be thrown
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // 把裡面的 payload (如 userId) 塞進 req 中供後續函數使用
+    req.user = decoded; // Attach the payload (like userId) to req for subsequent reuse
     next();
   } catch (err) {
-    res.status(401).json({ error: '未授權：Token 無效或已過期' });
+    res.status(401).json({ error: 'Unauthorized: Token is invalid or expired' });
   }
 };

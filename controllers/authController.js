@@ -5,7 +5,7 @@ exports.register = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 輸入驗證
+    // Input validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
@@ -17,13 +17,13 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    // 檢查使用者是否已存在
+    // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ error: 'Email is already registered' });
     }
 
-    // 建立新使用者 (bcrypt 邏輯會在這一步自動觸發)
+    // Create new user (bcrypt hashing is triggered automatically)
     user = new User({ email, password });
     await user.save();
 
@@ -38,24 +38,24 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 基本空值防護
+    // Basic null check
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // 尋找使用者
+    // Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // 比對密碼
+    // Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // 簽發 JWT，效期設為 7 天
+    // Issue JWT with 7-day expiration
     const token = jwt.sign(
       { userId: user._id }, 
       process.env.JWT_SECRET, 
