@@ -11,7 +11,7 @@ const authMiddleware = require('./middleware/authMiddleware');
 // 輸入清理由各路由的 express-validator 負責
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // 啟用 CORS 與 JSON 解析
 app.use(cors());
@@ -102,11 +102,11 @@ app.delete('/api/sessions/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const collection = db.collection("focus_sessions");
-    
+
     // 確保只能刪除自己的紀錄
-    const result = await collection.deleteOne({ 
+    const result = await collection.deleteOne({
       _id: new ObjectId(id),
-      userId: req.user.userId 
+      userId: req.user.userId
     });
 
     if (result.deletedCount === 1) {
@@ -203,7 +203,7 @@ app.post('/api/contact', [
 
   try {
     const { name, email, message } = req.body;
-    
+
     const newContact = {
       name,
       email,
@@ -214,9 +214,9 @@ app.post('/api/contact', [
     const collection = db.collection("contacts");
     const result = await collection.insertOne(newContact);
 
-    res.status(201).json({ 
-      message: "Contact message sent successfully", 
-      id: result.insertedId 
+    res.status(201).json({
+      message: "Contact message sent successfully",
+      id: result.insertedId
     });
   } catch (err) {
     console.error("Failed to save contact message:", err);
@@ -226,7 +226,7 @@ app.post('/api/contact', [
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`後端伺服器正在運行: http://localhost:${PORT}`);
+    console.log(`Server is running on port: http://localhost:${PORT}`);
   });
 }
 
